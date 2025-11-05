@@ -1,4 +1,4 @@
-# 📱 SMS spam 
+# 📱 Text Classification ile SMS Spam Tespiti
 
 Bu proje, **SMS mesajlarının spam (istenmeyen mesaj)** olup olmadığını **Text Classification (Metin Sınıflandırması)** yöntemiyle tahmin etmeyi amaçlamaktadır.
 Proje kapsamında **Doğal Dil İşleme (NLP)** teknikleri ve **Makine Öğrenmesi algoritmaları** kullanılarak bir sınıflandırma modeli oluşturulmuştur.
