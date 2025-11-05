@@ -1,22 +1,19 @@
-# 📱 Text Classification ile SMS Spam Tespiti
+# 📱 SMS Spam Tespiti (Text Classification)
 
-Bu proje, **SMS mesajlarının spam (istenmeyen mesaj)** olup olmadığını **Text Classification (Metin Sınıflandırması)** yöntemiyle tahmin etmeyi amaçlamaktadır.
-Proje kapsamında **Doğal Dil İşleme (NLP)** teknikleri ve **Makine Öğrenmesi algoritmaları** kullanılarak bir sınıflandırma modeli oluşturulmuştur.
+Bu projede, SMS mesajlarının **spam (istenmeyen mesaj)** olup olmadığını tahmin eden basit bir **metin sınıflandırma** modeli geliştirdim.
+Amaç, gelen bir mesajın içeriğine göre onu "spam" ya da "normal" olarak ayırmaktı.
 
 ---
 
-## 🚀 Proje Adımları
+## 🔹 1. Veri Seti
 
-### 1. Veri Seti
+Projede **spam.csv** adlı veri setini kullandım.
+Veri setinde iki temel sütun bulunuyor:
 
-Kullanılan veri seti: **spam.csv**
-
-Veri setinde iki temel sütun bulunmaktadır:
-
-* `label`: Mesajın türü (“ham” = normal, “spam” = istenmeyen mesaj)
+* `label`: Mesajın türü (spam veya ham)
 * `text`: Mesajın içeriği
 
-İlk olarak gereksiz sütunlar kaldırılmış ve kolon isimleri sadeleştirilmiştir
+İlk olarak gereksiz sütunları sildim ve isimleri düzenledim:
 
 ```python
 data = data.drop(['Unnamed: 2', 'Unnamed: 3', 'Unnamed: 4'], axis=1)
@@ -25,66 +22,61 @@ data.columns = ["label", "text"]
 
 ---
 
-### 2. Metin Ön İşleme (Text Preprocessing)
+## 🔹 2. Metin Ön İşleme
 
-Metinler, modelin anlayabileceği forma getirilmiştir.
-Bu aşamada yapılan işlemler:
+Bu kısımda mesajların içeriğini modele uygun hale getirdim.
+Yani gereksiz karakterleri temizledim, küçük harfe çevirdim, stopword’leri (önemsiz kelimeleri) çıkardım ve kelimeleri kök haline getirdim.
 
-* Özel karakterlerin temizlenmesi
-* Küçük harfe dönüştürme
-* Tokenization (kelimeye ayırma)
-* Stopword’lerin kaldırılması
-* Lemmatization (kelimeleri kök haline getirme)
+Kısaca yapılan işlemler:
 
-```python
-r = re.sub("[^A-Za-z]", " ", text[i])
-r = r.lower()
-r = nltk.word_tokenize(r)
-r = [word for word in r if word not in stopwords.words("english")]
-r = [lemmatizer.lemmatize(word) for word in r]
-```
+* Semboller ve sayılar kaldırıldı
+* Tüm harfler küçültüldü
+* İngilizce stopword’ler çıkarıldı
+* Kelimeler lemmatize edildi (kök haline getirildi)
 
-Sonuçlar `text2` adlı yeni bir sütuna kaydedilmiştir.
+Bu işlemlerden sonra temizlenmiş metinleri `text2` adında yeni bir sütuna ekledim.
 
 ---
 
-### 3. Eğitim ve Test Verisine Ayırma
+## 🔹 3. Veriyi Eğitim ve Test Olarak Ayırma
 
-Veri seti, %67 eğitim ve %33 test olacak şekilde ikiye ayrılmıştır:
+Veriyi %67 eğitim ve %33 test olacak şekilde ayırdım:
 
 ```python
 X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.33, random_state=42)
 ```
 
+Böylece modelin öğrenmesi ve sonrasında test edilmesi için iki ayrı kısım oluşturuldu.
+
 ---
 
-### 4. Özellik Çıkarımı (Feature Extraction)
+## 🔹 4. Özellik Çıkarımı
 
-Metin verileri, **Bag of Words (BoW)** yöntemiyle sayısal forma dönüştürülmüştür:
+Metinleri modele verebilmek için sayısal değerlere dönüştürmem gerekiyordu.
+Bunun için **CountVectorizer** yöntemini kullandım. Bu yöntem, her kelimenin metinde kaç defa geçtiğini sayıyor:
 
 ```python
-from sklearn.feature_extraction.text import CountVectorizer
 cv = CountVectorizer()
 X_train_cv = cv.fit_transform(X_train)
 ```
 
 ---
 
-### 5. Model Eğitimi
+## 🔹 5. Model Eğitimi
 
-Sınıflandırıcı olarak **Decision Tree Classifier** kullanılmıştır:
+Model olarak **Decision Tree Classifier (Karar Ağacı)** kullandım.
+Bu algoritma, veriye göre dallanarak karar verir ve sonunda sınıfı (spam veya ham) tahmin eder.
 
 ```python
-from sklearn.tree import DecisionTreeClassifier
 dt = DecisionTreeClassifier()
 dt.fit(X_train_cv, Y_train)
 ```
 
 ---
 
-### 6. Tahmin ve Başarı Oranı
+## 🔹 6. Tahmin ve Sonuç
 
-Model test verisi üzerinde denenmiş ve doğruluk oranı hesaplanmıştır:
+Eğitimden sonra test verisiyle modelin doğruluğunu ölçtüm:
 
 ```python
 prediction = dt.predict(x_test_cv)
@@ -93,36 +85,29 @@ Percent = [(c_matrix[0,0] + c_matrix[1,1]) / sum(sum(c_matrix))]
 print(f"Accuracy : {Percent}")
 ```
 
----
-
-## 📊 Sonuçlar
-
-Model, test verisi üzerinde **yaklaşık %X doğruluk oranı** elde etmiştir
-(çıktı çalıştırıldığı ortama göre değişebilir).
+Modelin doğruluk oranı yaklaşık **%X civarındaydı** (çalıştığı ortama göre değişebilir).
 
 ---
 
-## 🧰 Kullanılan Kütüphaneler
+## 🔹 Kullanılan Kütüphaneler
 
-* **pandas** → Veri okuma ve düzenleme
-* **nltk** → Metin işleme (tokenization, stopword, lemmatization)
-* **scikit-learn** → Model eğitimi, test ayrımı ve metrik hesaplama
-
----
-
-## 💡 Geliştirme Fikirleri
-
-* CountVectorizer yerine **TF-IDF Vectorizer** denenebilir.
-* **Naive Bayes**, **Logistic Regression** veya **Random Forest** gibi farklı modeller karşılaştırılabilir.
-* Daha fazla veriyle modelin başarısı artırılabilir.
-* Model Flask veya Streamlit ile web arayüzüne dönüştürülebilir.
+* **pandas** – Veri okuma ve düzenleme
+* **nltk** – Metin işleme (stopword, lemmatization vs.)
+* **scikit-learn** – Model eğitimi ve test işlemleri
 
 ---
 
-## 📚 Özet
+## 💡 İleride Yapılabilecekler
 
-Bu proje, **Metin Sınıflandırma (Text Classification)** yaklaşımı kullanarak SMS mesajlarının spam olup olmadığını tespit eden temel bir NLP uygulamasıdır.
-Proje, makine öğrenmesi ve metin işleme alanlarında temel bir örnek teşkil eder.
+* **TF-IDF Vectorizer** kullanarak kelimelerin önemini daha iyi hesaplamak
+* Farklı algoritmalar (Naive Bayes, Random Forest vb.) denemek
+* Web arayüzü oluşturup kullanıcıdan SMS metni alarak tahmin yapmak
 
 ---
 
+## 🧾 Özet
+
+Bu proje, basit bir **Doğal Dil İşleme (NLP)** uygulaması olarak SMS mesajlarını analiz edip spam olup olmadığını tahmin ediyor.
+Hem metin ön işleme hem de makine öğrenmesi tarafında temel ama öğretici bir örnek oldu.
+
+---
